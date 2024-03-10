@@ -1,6 +1,8 @@
-import { useContext} from "react";
+import { useContext, useEffect} from "react";
 import Question from "./Question";
 import { QuizContext } from "../context/quiz";
+
+//https://opentdb.com/api_config.php
 
 /*
  * Next is replaced by React context
@@ -25,7 +27,22 @@ const reducer = (state, action) => {
 
 //is possible use function but is better use arrow function because is more simple and modern
 const Quiz = () => {
-    const [quizState, dispatch] = useContext(QuizContext)
+    const [quizState, dispatch] = useContext(QuizContext);
+    //if fail regenerate link at: https://opentdb.com/api_config.php
+    const apiURL = "https://opentdb.com/api.php?amount=10&category=10&difficulty=easy";
+
+    useEffect(() => {
+        if (quizState.questions.length > 0)
+        {
+            return;
+        }
+        console.log("inicializando ");
+        fetch(apiURL).then((response) => response.json()).then(data => {
+            console.log(data);
+            dispatch({type: "LOAD_QUESTIONS", payload: data.results});
+        });
+    } );
+
 // useReducer returns a stateful value, and a function to update it.
 
 /**
@@ -56,10 +73,10 @@ const Quiz = () => {
                         <div>You have completed de quiz</div>
                         <div>You've got {quizState.correctAnswersCount} of {quizState.questions.length}</div>
                     </div>
-                    <button className="next-button" onClick={() => dispatch({type: 'RESTART'})}>Restart</button>
+                    <div className="next-button" onClick={() => dispatch({type: 'RESTART'})}>Restart</div>
                 </div>
             )}
-            {!quizState.showResults && ( <div>
+            {!quizState.showResults && quizState.questions.length > 0  && ( <div>
                 <div className="score">Question {quizState.currentQuestionIndex + 1 }/{quizState.questions.length}</div>
                 <Question/>
                 <div className="next-button" onClick={() => dispatch({type: 'NEXT_QUESTION'})}>Next Question</div>

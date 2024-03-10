@@ -1,6 +1,7 @@
 import { createContext, useReducer } from "react";
-import questions from "../data";
-import { shuffleAnswers } from "../helpers";
+//when questions came from data
+//import questions from "../data";
+import { normalizeQuestions, shuffleAnswers } from "../helpers";
 
 export const QuizContext  = createContext();
 
@@ -12,9 +13,10 @@ const initialState = {
     larger way
     questions: questions,
     */
-    questions,
+    questions: [],
     showResults: false,
-    answers: shuffleAnswers(questions[0]),
+//    answers: shuffleAnswers(questions[0]),
+    answers: [],
     currentAnswer: '',
     correctAnswersCount: 0,
 };
@@ -54,6 +56,14 @@ const reducer = (state, action) => {
             }
             */
             return initialState;
+        }
+        case "LOAD_QUESTIONS": {
+            const normalizedQuestions = normalizeQuestions(action.payload);
+            return {
+                ...state,
+                questions: normalizedQuestions,
+                answers: shuffleAnswers(normalizedQuestions[0]),
+            }
         }
         default: {
             return state;
